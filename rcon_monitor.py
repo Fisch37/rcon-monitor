@@ -1,13 +1,15 @@
+from time import monotonic
 from typing import Iterable
 from mcipc.rcon.je import Client
-from mcipc.rcon.commands.execute import ExecuteProxy
-from time import monotonic
 from threading import Thread, Event
-from dataclasses import dataclass
 from abc import ABCMeta, abstractmethod
 
+from pydantic import BaseModel
 
-class RconPlayerMonitor[RawPlayerInfo, PlayerInfo](Thread, metaclass=ABCMeta):
+class PlayerInfo(BaseModel):
+    time: float
+
+class RconPlayerMonitor[Raw, Parsed: PlayerInfo](Thread, metaclass=ABCMeta):
     def __init__(
         self, 
         address: tuple[str, int], 
@@ -18,20 +20,20 @@ class RconPlayerMonitor[RawPlayerInfo, PlayerInfo](Thread, metaclass=ABCMeta):
         self._client = Client(*address, passwd=password)
         self._interval = update_interval
         self._stop_event = Event()
-        self._data: dict[str, PlayerInfo] = {}
+        self._data: dict[str, Parsed] = {}
         self._data_event = Event()
         super().__init__(daemon=True)
     
     @abstractmethod
-    def execute(self, client: Client) -> Iterable[RawPlayerInfo]: ...
+    def execute(self, client: Client) -> Iterable[Raw]: ...
     
     @abstractmethod
-    def parse(self, raw: Iterable[RawPlayerInfo]) -> dict[str, PlayerInfo]: ...
+    def parse(self, raw: Iterable[Raw], time: float) -> dict[str, Parsed]: ...
     
     def run(self) -> None:
         with Client("localhost", 25575, passwd="very_secure_pswd") as client:
             while not self._stop_event.is_set():
-                self._data = self.parse(self.execute(client))
+                self._data = self.parse(self.execute(client), monotonic())
                 
                 self._data_event.set()
                 self._data_event.clear()
