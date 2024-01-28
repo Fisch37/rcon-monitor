@@ -109,7 +109,9 @@ class NBTInfo(PlayerInfo):
         
         "level": Assignment("XpLevel"),
         "xp_points": Assignment("XpTotal"),
-        "level_percentage": Assignment("XpP")
+        "level_percentage": Assignment("XpP"),
+        
+        "recipes": Assignment("recipeBook.recipes"),
     }
     
     data: dict
@@ -135,6 +137,8 @@ class NBTInfo(PlayerInfo):
     level: int
     xp_points: int
     level_percentage: float
+    
+    recipes: list[str]
     
     @staticmethod
     def from_nbt(time: float, nbt: nbtlib.Compound) -> "NBTInfo":
