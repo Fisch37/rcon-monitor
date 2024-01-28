@@ -88,11 +88,6 @@ class NBTInfo(PlayerInfo):
         "on_ground": Assignment("OnGround", bool),
         "rotation": Assignment("Rotation", tuple),
         
-        "time_since_last_death": Assignment(
-            "DeathTime",
-            lambda ticks: timedelta(milliseconds=ticks*50)
-        ),
-        
         "gamemode": Assignment("playerGameType", Gamemode),
         "attributes": Assignment(
             "Attributes",
@@ -115,8 +110,6 @@ class NBTInfo(PlayerInfo):
     dimension: str
     on_ground: bool
     rotation: tuple[float, float]
-    
-    time_since_last_death: timedelta
     
     gamemode: Gamemode
     attributes: list[Attribute]
