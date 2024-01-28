@@ -97,6 +97,7 @@ class NBTInfo(PlayerInfo):
             ]
         ),
         "health": Assignment("Health"),
+        "air": Assignment("Air"),
         "fire_ticks": Assignment("Fire"),
         "food_level": Assignment("foodLevel"),
         "saturation_level": Assignment("foodSaturationLevel"),
@@ -121,6 +122,7 @@ class NBTInfo(PlayerInfo):
     gamemode: Gamemode
     attributes: list[Attribute]
     health: float
+    air: int
     fire_ticks: int
     food_level: int
     saturation_level: int
