@@ -114,8 +114,6 @@ class NBTInfo(PlayerInfo):
         "recipes": Assignment("recipeBook.recipes"),
     }
     
-    data: dict
-    
     position: tuple[float, float, float]
     dimension: str
     on_ground: bool
@@ -142,13 +140,11 @@ class NBTInfo(PlayerInfo):
     
     @staticmethod
     def from_nbt(time: float, nbt: nbtlib.Compound) -> "NBTInfo":
-        data = nbt_to_primitive(nbt)
         kwargs = {}
         for attribute, assignment in NBTInfo.__CUSTOM_ASSIGNMENTS__.items():
             kwargs[attribute] = assignment(nbt)
         
         return NBTInfo(
             time=time,
-            data=data,
             **kwargs
         )
