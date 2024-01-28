@@ -1,5 +1,5 @@
+from datetime import timedelta
 from enum import IntEnum
-from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -95,7 +95,15 @@ class NBTInfo(PlayerInfo):
             ]
         ),
         "gamemode": Assignment("playerGameType", Gamemode),
-        "health": Assignment("Health")
+        "health": Assignment("Health"),
+        "time_since_last_death": Assignment(
+            "DeathTime",
+            lambda ticks: timedelta(milliseconds=ticks*50)
+        ),
+        "on_ground": Assignment("OnGround", bool),
+        "rotation": Assignment("Rotation", tuple),
+        "food_level": Assignment("foodLevel"),
+        "selected_slot": Assignment("SelectedItemSlot")
     }
     
     data: dict
@@ -106,6 +114,11 @@ class NBTInfo(PlayerInfo):
     attributes: list[Attribute]
     gamemode: Gamemode
     health: float
+    time_since_last_death: timedelta
+    on_ground: bool
+    rotation: tuple[float, float]
+    food_level: int
+    selected_slot: int
     
     @staticmethod
     def from_nbt(time: float, nbt: nbtlib.Compound) -> "NBTInfo":
