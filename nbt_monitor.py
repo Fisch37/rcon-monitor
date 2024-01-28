@@ -1,11 +1,18 @@
-from typing import Iterable, overload
+from typing import Iterable, overload, Union
 
 import nbtlib
 from pydantic import ConfigDict
 
 from rcon_monitor import RconPlayerMonitor, PlayerInfo, Client
 
-PrimitiveNBT = dict[str, "PrimitiveNBT"]|list["PrimitiveNBT"]|int|float|str
+PrimitiveNBT = Union[
+    dict[str, "PrimitiveNBT"],
+    list["PrimitiveNBT"],
+    tuple["PrimitiveNBT", ...],
+    int,
+    float,
+    str
+]
 
 # Doing overloads here because it's easy and static type checkers leave me alone then
 @overload
@@ -18,7 +25,7 @@ def nbt_to_primitive(nbt: nbtlib.Base) -> PrimitiveNBT:
     # NBT types inherit from their primitives (but pydantic doesn't like them)
     if isinstance(nbt, dict):
         return {key: nbt_to_primitive(value) for key, value in nbt.items()}
-    if isinstance(nbt, list|nbtlib.Array):
+    if isinstance(nbt, list):
         return [nbt_to_primitive(subnbt) for subnbt in nbt]
     if isinstance(nbt, int):
         return int(nbt)
@@ -26,6 +33,8 @@ def nbt_to_primitive(nbt: nbtlib.Base) -> PrimitiveNBT:
         return float(nbt)
     if isinstance(nbt, str):
         return str(nbt)
+    if isinstance(nbt, nbtlib.Array):
+        return tuple(nbt_to_primitive(subnbt) for subnbt in nbt)
     raise RuntimeError("Encountered unfamiliar nbt type!")
 
 class NBTInfo(PlayerInfo):
