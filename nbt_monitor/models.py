@@ -97,7 +97,10 @@ class NBTInfo(PlayerInfo):
             ]
         ),
         "health": Assignment("Health"),
+        "fire_ticks": Assignment("Fire"),
         "food_level": Assignment("foodLevel"),
+        "saturation_level": Assignment("foodSaturationLevel"),
+        "exhaustion_level": Assignment("foodExhaustionLevel"),
         
         "selected_slot": Assignment("SelectedItemSlot"),
         "inventory": Assignment("Inventory", nbt_converter=_parse_inventory),
@@ -114,7 +117,10 @@ class NBTInfo(PlayerInfo):
     gamemode: Gamemode
     attributes: list[Attribute]
     health: float
+    fire_ticks: int
     food_level: int
+    saturation_level: int
+    exhaustion_level: float
     
     selected_slot: int
     inventory: list[InventorySlot]
