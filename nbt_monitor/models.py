@@ -105,6 +105,10 @@ class NBTInfo(PlayerInfo):
         "selected_slot": Assignment("SelectedItemSlot"),
         "inventory": Assignment("Inventory", nbt_converter=_parse_inventory),
         "enderchest": Assignment("EnderItems", nbt_converter=_parse_inventory),
+        
+        "level": Assignment("XpLevel"),
+        "xp_points": Assignment("XpTotal"),
+        "level_percentage": Assignment("XpP")
     }
     
     data: dict
@@ -125,6 +129,10 @@ class NBTInfo(PlayerInfo):
     selected_slot: int
     inventory: list[InventorySlot]
     enderchest: list[InventorySlot]
+    
+    level: int
+    xp_points: int
+    level_percentage: float
     
     @staticmethod
     def from_nbt(time: float, nbt: nbtlib.Compound) -> "NBTInfo":
