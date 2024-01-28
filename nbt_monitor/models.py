@@ -83,10 +83,17 @@ def _parse_inventory(nbt: nbtlib.List) -> list[InventorySlot]:
 
 class NBTInfo(PlayerInfo):
     __CUSTOM_ASSIGNMENTS__ = {
-        "inventory": Assignment("Inventory", nbt_converter=_parse_inventory),
-        "enderchest": Assignment("EnderItems", nbt_converter=_parse_inventory),
         "position": Assignment("Pos", tuple),
         "dimension": Assignment("Dimension"),
+        "on_ground": Assignment("OnGround", bool),
+        "rotation": Assignment("Rotation", tuple),
+        
+        "time_since_last_death": Assignment(
+            "DeathTime",
+            lambda ticks: timedelta(milliseconds=ticks*50)
+        ),
+        
+        "gamemode": Assignment("playerGameType", Gamemode),
         "attributes": Assignment(
             "Attributes",
             nbt_converter=lambda nbt: [
@@ -94,31 +101,31 @@ class NBTInfo(PlayerInfo):
                 for subnbt in nbt
             ]
         ),
-        "gamemode": Assignment("playerGameType", Gamemode),
         "health": Assignment("Health"),
-        "time_since_last_death": Assignment(
-            "DeathTime",
-            lambda ticks: timedelta(milliseconds=ticks*50)
-        ),
-        "on_ground": Assignment("OnGround", bool),
-        "rotation": Assignment("Rotation", tuple),
         "food_level": Assignment("foodLevel"),
-        "selected_slot": Assignment("SelectedItemSlot")
+        
+        "selected_slot": Assignment("SelectedItemSlot"),
+        "inventory": Assignment("Inventory", nbt_converter=_parse_inventory),
+        "enderchest": Assignment("EnderItems", nbt_converter=_parse_inventory),
     }
     
     data: dict
-    inventory: list[InventorySlot]
-    enderchest: list[InventorySlot]
+    
     position: tuple[float, float, float]
     dimension: str
-    attributes: list[Attribute]
-    gamemode: Gamemode
-    health: float
-    time_since_last_death: timedelta
     on_ground: bool
     rotation: tuple[float, float]
+    
+    time_since_last_death: timedelta
+    
+    gamemode: Gamemode
+    attributes: list[Attribute]
+    health: float
     food_level: int
+    
     selected_slot: int
+    inventory: list[InventorySlot]
+    enderchest: list[InventorySlot]
     
     @staticmethod
     def from_nbt(time: float, nbt: nbtlib.Compound) -> "NBTInfo":
