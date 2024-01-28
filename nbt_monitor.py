@@ -1,7 +1,6 @@
 from typing import Iterable, overload, Union
 
 import nbtlib
-from pydantic import ConfigDict
 
 from rcon_monitor import RconPlayerMonitor, PlayerInfo, Client
 
@@ -38,9 +37,7 @@ def nbt_to_primitive(nbt: nbtlib.Base) -> PrimitiveNBT:
     raise RuntimeError("Encountered unfamiliar nbt type!")
 
 class NBTInfo(PlayerInfo):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-    
-    nbt: dict
+    data: dict
 
 class NBTMonitor(RconPlayerMonitor[str, NBTInfo]):
     def execute(self, client: Client):
@@ -57,5 +54,5 @@ class NBTMonitor(RconPlayerMonitor[str, NBTInfo]):
             
             nbt_start = line.find(":") + 2
             nbt: nbtlib.Compound = nbtlib.parse_nbt(line[nbt_start:])
-            data[player] = NBTInfo(time=time, nbt=nbt_to_primitive(nbt))
+            data[player] = NBTInfo(time=time, data=nbt_to_primitive(nbt))
         return data
