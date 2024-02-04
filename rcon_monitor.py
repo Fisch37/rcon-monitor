@@ -18,7 +18,7 @@ class RconPlayerMonitor[Raw, Parsed: PlayerInfo](Thread, metaclass=ABCMeta):
         update_interval: float=0.5
     ):
         self._client = Client(*address, passwd=password)
-        self._interval = update_interval
+        self.interval = update_interval
         self._stop_event = Event()
         self._data: dict[str, Parsed] = {}
         self._data_event = Event()
@@ -37,7 +37,7 @@ class RconPlayerMonitor[Raw, Parsed: PlayerInfo](Thread, metaclass=ABCMeta):
                 
                 self._data_event.set()
                 self._data_event.clear()
-                self._stop_event.wait(timeout=self._interval)
+                self._stop_event.wait(timeout=self.interval)
     
     def stop(self) -> None:
         self._stop_event.set()
