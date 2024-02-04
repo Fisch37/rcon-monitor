@@ -67,6 +67,25 @@ class Attribute(ConvertsNBT, BaseModel):
     name: str
     modifiers: list[Modifier]
 
+
+class Effect(ConvertsNBT, BaseModel):
+    __ASSIGNMENT_TABLE__ = {
+        "id": Assignment("id"),
+        "duration": Assignment("duration"),
+        "amplifier": Assignment("amplifier"),
+        "show_icon": Assignment("show_icon", bool),
+        "show_particles": Assignment("show_particles", bool),
+        "ambient": Assignment("ambient", bool)
+    }
+    
+    id: str
+    duration: int
+    amplifier: int
+    show_icon: bool
+    show_particles: bool
+    ambient: bool
+
+
 class Gamemode(IntEnum):
     SURVIVAL = 0
     CREATIVE = 1
@@ -100,6 +119,15 @@ class NBTInfo(PlayerInfo):
         "health": Assignment("Health"),
         "air": Assignment("Air"),
         "fire_ticks": Assignment("Fire"),
+        "effects": Assignment(
+            "active_effects",
+            nbt_converter=lambda nbt: [
+                Effect.from_nbt(subnbt)
+                for subnbt in nbt
+            ],
+            optional=True,
+            default_factory=lambda: []
+        ),
         "food_level": Assignment("foodLevel"),
         "saturation_level": Assignment("foodSaturationLevel"),
         "exhaustion_level": Assignment("foodExhaustionLevel"),
@@ -126,6 +154,7 @@ class NBTInfo(PlayerInfo):
     health: float
     air: int
     fire_ticks: int
+    effects: list[Effect]
     food_level: int
     saturation_level: int
     exhaustion_level: float
