@@ -84,6 +84,7 @@ def _parse_inventory(nbt: nbtlib.List) -> list[InventorySlot]:
 class NBTInfo(PlayerInfo):
     __CUSTOM_ASSIGNMENTS__ = {
         "position": Assignment("Pos", tuple),
+        "motion": Assignment("Motion", tuple),
         "dimension": Assignment("Dimension"),
         "on_ground": Assignment("OnGround", bool),
         "rotation": Assignment("Rotation", tuple),
@@ -115,6 +116,7 @@ class NBTInfo(PlayerInfo):
     }
     
     position: tuple[float, float, float]
+    motion: tuple[float, float, float]
     dimension: str
     on_ground: bool
     rotation: tuple[float, float]
