@@ -1,3 +1,5 @@
 mcipc
 pydantic
 nbtlib==1.12.1
+fastapi
+uvicorn[standard]
