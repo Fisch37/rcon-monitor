@@ -30,14 +30,19 @@ class RconPlayerMonitor[Raw, Parsed: PlayerInfo](Thread, metaclass=ABCMeta):
     @abstractmethod
     def parse(self, raw: Iterable[Raw], time: float) -> dict[str, Parsed]: ...
     
+    def on_close(self): ...
+    
     def run(self) -> None:
-        with Client("localhost", 25575, passwd="very_secure_pswd") as client:
-            while not self._stop_event.is_set():
-                self._data = self.parse(self.execute(client), monotonic())
-                
-                self._data_event.set()
-                self._data_event.clear()
-                self._stop_event.wait(timeout=self.interval)
+        try:
+            with Client("localhost", 25575, passwd="very_secure_pswd") as client:
+                while not self._stop_event.is_set():
+                    self._data = self.parse(self.execute(client), monotonic())
+                    
+                    self._data_event.set()
+                    self._data_event.clear()
+                    self._stop_event.wait(timeout=self.interval)
+        finally:
+            self.on_close()
     
     def stop(self) -> None:
         self._stop_event.set()
