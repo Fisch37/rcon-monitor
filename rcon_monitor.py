@@ -34,9 +34,9 @@ class RconPlayerMonitor[Raw, Parsed: PlayerInfo](Thread, metaclass=ABCMeta):
     
     def run(self) -> None:
         try:
-            with Client("localhost", 25575, passwd="very_secure_pswd") as client:
+            with self._client:
                 while not self._stop_event.is_set():
-                    self._data = self.parse(self.execute(client), monotonic())
+                    self._data = self.parse(self.execute(self._client), monotonic())
                     
                     self._data_event.set()
                     self._data_event.clear()
