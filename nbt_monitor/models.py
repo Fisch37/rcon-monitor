@@ -6,7 +6,7 @@ from pydantic import BaseModel
 import nbtlib
 
 from rcon_monitor import PlayerInfo
-from nbt_monitor.utils import ConvertsNBT, Assignment, nbt_to_primitive
+from nbt_monitor.utils import ConvertsNBT, Assignment, SubmodelList
 
 
 class InventorySlot(ConvertsNBT, BaseModel):
@@ -54,14 +54,7 @@ class Attribute(ConvertsNBT, BaseModel):
     __ASSIGNMENT_TABLE__ = {
         "base_value": Assignment("Base"),
         "name": Assignment("Name"),
-        "modifiers": Assignment(
-            "Modifiers",
-            nbt_converter=lambda nbt: [
-                Modifier.from_nbt(subnbt) for subnbt in nbt
-            ],
-            optional=True,
-            default_factory=lambda: []
-        )
+        "modifiers": SubmodelList("Modifiers", Modifier, True),
     }
     base_value: float
     name: str
@@ -109,25 +102,11 @@ class NBTInfo(PlayerInfo):
         "rotation": Assignment("Rotation", tuple),
         
         "gamemode": Assignment("playerGameType", Gamemode),
-        "attributes": Assignment(
-            "Attributes",
-            nbt_converter=lambda nbt: [
-                Attribute.from_nbt(subnbt)
-                for subnbt in nbt
-            ]
-        ),
+        "attributes": SubmodelList("Attributes", Attribute),
         "health": Assignment("Health"),
         "air": Assignment("Air"),
         "fire_ticks": Assignment("Fire"),
-        "effects": Assignment(
-            "active_effects",
-            nbt_converter=lambda nbt: [
-                Effect.from_nbt(subnbt)
-                for subnbt in nbt
-            ],
-            optional=True,
-            default_factory=lambda: []
-        ),
+        "effects": SubmodelList("active_effects", Effect, True),
         "food_level": Assignment("foodLevel"),
         "saturation_level": Assignment("foodSaturationLevel"),
         "exhaustion_level": Assignment("foodExhaustionLevel"),

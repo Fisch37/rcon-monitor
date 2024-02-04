@@ -60,6 +60,26 @@ class Assignment[T](NamedTuple):
             primitive = self.converter(primitive)
         return primitive
 
+
+def Submodel(subtype: "type[ConvertsNBT]", path: str="{}"):
+    return Assignment(path, nbt_converter=subtype.from_nbt)
+
+def SubmodelList[T: "ConvertsNBT"](
+    path: str,
+    subtype: type[T],
+    optional: bool=False
+) -> Assignment[list[T]]:
+    return Assignment(
+        path,
+        nbt_converter=lambda nbt: [
+            subtype.from_nbt(subnbt)
+            for subnbt in nbt
+        ],
+        optional=optional,
+        default_factory=None if not optional else lambda: []
+    )
+
+
 class ConvertsNBT:
     __ASSIGNMENT_TABLE__: dict[str, Assignment]
     
