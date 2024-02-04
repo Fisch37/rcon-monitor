@@ -156,7 +156,7 @@ class NBTInfo(PlayerInfo):
     fire_ticks: int
     effects: list[Effect]
     food_level: int
-    saturation_level: int
+    saturation_level: float
     exhaustion_level: float
     
     selected_slot: int
