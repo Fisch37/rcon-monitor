@@ -1,4 +1,3 @@
-from datetime import timedelta
 from enum import IntEnum
 from uuid import UUID
 
@@ -6,7 +5,7 @@ from pydantic import BaseModel
 import nbtlib
 
 from rcon_monitor import PlayerInfo
-from nbt_monitor.utils import ConvertsNBT, Assignment, SubmodelList
+from nbt_monitor.utils import ConvertsNBT, Assignment, SubmodelList, Submodel
 
 
 class InventorySlot(ConvertsNBT, BaseModel):
@@ -93,16 +92,36 @@ def _parse_inventory(nbt: nbtlib.List) -> list[InventorySlot]:
     ]
 
 
-class NBTInfo(PlayerInfo):
-    __CUSTOM_ASSIGNMENTS__ = {
+class LocationInfo(ConvertsNBT, BaseModel):
+    __ASSIGNMENT_TABLE__ = {
         "position": Assignment("Pos", tuple),
         "motion": Assignment("Motion", tuple),
         "dimension": Assignment("Dimension"),
         "on_ground": Assignment("OnGround", bool),
         "rotation": Assignment("Rotation", tuple),
-        
-        "gamemode": Assignment("playerGameType", Gamemode),
-        "attributes": SubmodelList("Attributes", Attribute),
+    }
+    
+    position: tuple[float, float, float]
+    motion: tuple[float, float, float]
+    dimension: str
+    on_ground: bool
+    rotation: tuple[float, float]
+
+
+class InventoryInfo(ConvertsNBT, BaseModel):
+    __ASSIGNMENT_TABLE__ = {
+        "selected_slot": Assignment("SelectedItemSlot"),
+        "inventory": Assignment("Inventory", nbt_converter=_parse_inventory),
+        "enderchest": Assignment("EnderItems", nbt_converter=_parse_inventory),
+    }
+    
+    selected_slot: int
+    inventory: list[InventorySlot]
+    enderchest: list[InventorySlot]
+
+
+class SurvivalInfo(ConvertsNBT, BaseModel):
+    __ASSIGNMENT_TABLE__ = {
         "health": Assignment("Health"),
         "air": Assignment("Air"),
         "fire_ticks": Assignment("Fire"),
@@ -111,25 +130,11 @@ class NBTInfo(PlayerInfo):
         "saturation_level": Assignment("foodSaturationLevel"),
         "exhaustion_level": Assignment("foodExhaustionLevel"),
         
-        "selected_slot": Assignment("SelectedItemSlot"),
-        "inventory": Assignment("Inventory", nbt_converter=_parse_inventory),
-        "enderchest": Assignment("EnderItems", nbt_converter=_parse_inventory),
-        
         "level": Assignment("XpLevel"),
         "xp_points": Assignment("XpTotal"),
         "level_percentage": Assignment("XpP"),
-        
-        "recipes": Assignment("recipeBook.recipes"),
     }
     
-    position: tuple[float, float, float]
-    motion: tuple[float, float, float]
-    dimension: str
-    on_ground: bool
-    rotation: tuple[float, float]
-    
-    gamemode: Gamemode
-    attributes: list[Attribute]
     health: float
     air: int
     fire_ticks: int
@@ -138,14 +143,31 @@ class NBTInfo(PlayerInfo):
     saturation_level: float
     exhaustion_level: float
     
-    selected_slot: int
-    inventory: list[InventorySlot]
-    enderchest: list[InventorySlot]
-    
     level: int
     xp_points: int
     level_percentage: float
+
+
+class NBTInfo(PlayerInfo):
+    __CUSTOM_ASSIGNMENTS__ = {
+        "location": Submodel(LocationInfo),
+        
+        "gamemode": Assignment("playerGameType", Gamemode),
+        "attributes": SubmodelList("Attributes", Attribute),
+        "survival": Submodel(SurvivalInfo),
+        
+        
+        "inventory": Submodel(InventoryInfo),
+        
+        "recipes": Assignment("recipeBook.recipes"),
+    }
     
+    location: LocationInfo
+    survival: SurvivalInfo
+    inventory: InventoryInfo
+    
+    gamemode: Gamemode
+    attributes: list[Attribute]
     recipes: list[str]
     
     @staticmethod

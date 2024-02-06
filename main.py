@@ -2,7 +2,7 @@ from uvicorn import run
 from fastapi import FastAPI
 
 from nbt_monitor import NBTMonitor, NBTInfo
-from api_models import *
+from nbt_monitor.models import LocationInfo
 
 
 app = FastAPI()
@@ -20,7 +20,7 @@ def get_all_player_data() -> dict[str, NBTInfo]:
 @app.get("/players/location")
 def get_player_locations() -> dict[str, LocationInfo]:
     return {
-        name: LocationInfo.from_nbtinfo(info)
+        name: info.location
         for name, info in nbt_monitor.data.items()
     }
 
