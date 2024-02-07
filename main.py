@@ -53,6 +53,17 @@ def get_player_inventories() -> dict[str, InventoryInfo]:
 def get_player_inventory(info: DependPlayerData) -> InventoryInfo:
     return info.inventory
 
+@app.get("/players/survival")
+def get_players_survival_stats() -> dict[str, SurvivalInfo]:
+    return {
+        name: info.survival
+        for name, info in nbt_monitor.data.items()
+    }
+
+@app.get("/player/{name}/survival")
+def get_player_survival_stats(info: DependPlayerData) -> SurvivalInfo:
+    return info.survival
+
 
 def main():
     global nbt_monitor
