@@ -1,13 +1,19 @@
-from typing import Annotated
+from typing import Annotated, Literal
+
+from pydantic import BaseModel
 from uvicorn import run
 from fastapi import Depends, FastAPI, HTTPException
 
 from nbt_monitor import NBTMonitor, NBTInfo
-from nbt_monitor.models import LocationInfo, InventoryInfo
+from nbt_monitor.models import LocationInfo, InventoryInfo, SurvivalInfo
 
 
 app = FastAPI()
 nbt_monitor: NBTMonitor
+
+
+class ErrorModel[T](BaseModel):
+    detail: T
 
 
 def player_data(name: str):
@@ -17,6 +23,7 @@ def player_data(name: str):
         raise HTTPException(404, "Player not found") from e
 
 DependPlayerData = Annotated[NBTInfo, Depends(player_data)]
+PlayerDataMissing = ErrorModel[Literal["Player not found"]]
 
 
 @app.get("/players/names")
@@ -27,7 +34,7 @@ def get_player_names() -> list[str]:
 def get_all_player_data() -> dict[str, NBTInfo]:
     return nbt_monitor.data
 
-@app.get("/player/{name}")
+@app.get("/player/{name}", responses={404: {"model": PlayerDataMissing}})
 def get_player_data(info: DependPlayerData) -> NBTInfo:
     return info
 
@@ -38,7 +45,7 @@ def get_player_locations() -> dict[str, LocationInfo]:
         for name, info in nbt_monitor.data.items()
     }
 
-@app.get("/players/{name}/location")
+@app.get("/players/{name}/location", responses={404: {"model": PlayerDataMissing}})
 def get_player_location(info: DependPlayerData) -> LocationInfo:
     return info.location
 
@@ -49,7 +56,7 @@ def get_player_inventories() -> dict[str, InventoryInfo]:
         for name, info in nbt_monitor.data.items()
     }
 
-@app.get("/player/{name}/inventory")
+@app.get("/player/{name}/inventory", responses={404: {"model": PlayerDataMissing}})
 def get_player_inventory(info: DependPlayerData) -> InventoryInfo:
     return info.inventory
 
@@ -60,7 +67,7 @@ def get_players_survival_stats() -> dict[str, SurvivalInfo]:
         for name, info in nbt_monitor.data.items()
     }
 
-@app.get("/player/{name}/survival")
+@app.get("/player/{name}/survival", responses={404: {"model": PlayerDataMissing}})
 def get_player_survival_stats(info: DependPlayerData) -> SurvivalInfo:
     return info.survival
 
